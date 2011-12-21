@@ -1,6 +1,6 @@
 package Dist::Zilla::Plugin::Dpkg::PerlbrewStarman;
 {
-  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.02';
+  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.03';
 }
 use Moose;
 
@@ -27,7 +27,7 @@ PIDFILE="/var/run/$APP.pid"
 
 PERLBREW_PATH="$APPDIR/perlbrew/bin"
 
-DAEMON_ARGS="-Ilib $PSGIAPP --daemonize --user $APPUSER --preload-app --workers 5 --pid $PIDFILE --port $APP --host 127.0.0.1 --error-log /var/log/$APP/error.log"
+DAEMON_ARGS="-Ilib $PSGIAPP --daemonize --user $APPUSER --preload-app --workers 5 --pid $PIDFILE --port {$starman_port} --host 127.0.0.1 --error-log /var/log/$APP/error.log"
 '
 );
 
@@ -309,6 +309,21 @@ build:
 '
 );
 
+
+has 'starman_port' => (
+    is => 'ro',
+    isa => 'Str',
+    required => 1
+);
+
+around '_generate_file' => sub {
+    my $orig = shift;
+    my $self = shift;
+    
+    $_[2]->{starman_port} = $self->starman_port;
+    $self->$orig(@_);
+};
+
 1;
 
 __END__
@@ -320,7 +335,7 @@ Dist::Zilla::Plugin::Dpkg::PerlbrewStarman - Generate dpkg files for your perlbr
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 SYNOPSIS
 
@@ -351,8 +366,6 @@ Starman.  It makes the following assumptions:
 
 =item Nginx config is in config/nginx/$packagename.conf
 
-=item Your $packagename is setup in the services file so it can be used as a port
-
 =item Your app can be preloaded
 
 =item Your app only listens locally (nginx handles the rest)
@@ -376,6 +389,12 @@ This module provides defaults for the following attribute:
 =item postrm_template_default
 
 =back
+
+=head1 ATTRIBUTES
+
+=head2 starman_port
+
+The port to use for starman.
 
 =head1 AUTHOR
 
