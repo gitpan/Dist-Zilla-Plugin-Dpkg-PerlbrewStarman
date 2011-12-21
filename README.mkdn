@@ -1,0 +1,46 @@
+# NAME
+
+Dist::Zilla::Plugin::Dpkg::PerlbrewStarman - Generate dpkg files for your perlbrew-backed, starman-based perl app
+
+# VERSION
+
+version 0.01
+
+# SYNOPSIS
+
+  #  [Dpkg::PerlbrewStarman]
+
+# DESCRIPTION
+
+Dist::Zilla::Plugin::Dpkg::PerlbrewStarman is an extension of
+Dist::Zilla::Plugin::Dpkg. It generates Debian control files that are
+suitable for a perl app that includes it's own Perlbrew and runs under
+Starman.  It makes the following assumptions:
+
+- XXX Perlbrew
+- Runs under [Starman](http://search.cpan.org/perldoc?Starman)
+- Starman is fronted by nginx
+- It's installed at /src/$packagename
+- Logs will be placed in /var/log/$packagename
+- psgi file is in script and is named $packagename.psgi
+- Config is in config/ and can be found by your app with nothing more than it's HOME variable set. (FOO_BAR_HOME)
+- Nginx config is in config/nginx/$packagename.conf
+
+This module provides defaults for the following attribute:
+
+- default_template_default
+- init_template_default
+- install_template_default
+- postinst_template_default
+- postrm_template_default
+
+# AUTHOR
+
+Cory G Watson <gphat@cpan.org>
+
+# COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Infinity Interactive, Inc.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
