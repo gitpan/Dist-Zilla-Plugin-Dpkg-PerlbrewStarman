@@ -1,6 +1,6 @@
 package Dist::Zilla::Plugin::Dpkg::PerlbrewStarman;
 {
-  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.03';
+  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.04';
 }
 use Moose;
 
@@ -335,7 +335,7 @@ Dist::Zilla::Plugin::Dpkg::PerlbrewStarman - Generate dpkg files for your perlbr
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 SYNOPSIS
 
@@ -356,7 +356,7 @@ Starman.  It makes the following assumptions:
 
 =item Starman is fronted by nginx
 
-=item It's installed at /src/$packagename
+=item It's installed at /srv/$packagename
 
 =item Logs will be placed in /var/log/$packagename
 
