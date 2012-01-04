@@ -1,6 +1,6 @@
 package Dist::Zilla::Plugin::Dpkg::PerlbrewStarman;
 {
-  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.04';
+  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.05';
 }
 use Moose;
 
@@ -254,14 +254,10 @@ PACKAGE={$package_name}
 case "$1" in
     purge)
         # Remove the config symlink
-        if [ -e /etc/$PACKAGE ]; then
-            rm /etc/$PACKAGE
-        fi
+        rm /etc/$PACKAGE
 
         # Remove the nginx config
-        if [ -e /etc/nginx/sites-available/$PACKAGE ]; then
-            rm /etc/nginx/sites-available/$PACKAGE
-        fi
+        rm /etc/nginx/sites-available/$PACKAGE
 
         # Remove the user
         userdel $PACKAGE || true
@@ -335,7 +331,7 @@ Dist::Zilla::Plugin::Dpkg::PerlbrewStarman - Generate dpkg files for your perlbr
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
 =head1 SYNOPSIS
 
@@ -402,7 +398,7 @@ Cory G Watson <gphat@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by Infinity Interactive, Inc.
+This software is copyright (c) 2012 by Infinity Interactive, Inc.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

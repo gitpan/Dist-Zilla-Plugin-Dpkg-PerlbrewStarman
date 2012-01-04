@@ -25,7 +25,7 @@ my %WriteMakefileArgs = (
     "Dist::Zilla::Plugin::Dpkg" => "0.03",
     "Moose" => 0
   },
-  "VERSION" => "0.04",
+  "VERSION" => "0.05",
   "test" => {
     "TESTS" => "t/*.t"
   }
