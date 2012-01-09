@@ -1,6 +1,6 @@
 package Dist::Zilla::Plugin::Dpkg::PerlbrewStarman;
 {
-  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.05';
+  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.06';
 }
 use Moose;
 
@@ -20,6 +20,7 @@ has '+default_template_default' => (
 
 APP="{$package_name}"
 APPDIR="/srv/$APP"
+APPLIB="/srv/$APP/lib"
 APPUSER={$package_name}
 
 PSGIAPP="script/$APP.psgi"
@@ -331,7 +332,7 @@ Dist::Zilla::Plugin::Dpkg::PerlbrewStarman - Generate dpkg files for your perlbr
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 
