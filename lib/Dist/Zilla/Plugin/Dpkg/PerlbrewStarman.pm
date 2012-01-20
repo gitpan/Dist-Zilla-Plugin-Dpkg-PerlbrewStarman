@@ -1,6 +1,6 @@
 package Dist::Zilla::Plugin::Dpkg::PerlbrewStarman;
 {
-  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.06';
+  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.07';
 }
 use Moose;
 
@@ -87,7 +87,7 @@ _start() \{
   echo ""
   echo "Waiting for $APP to start..."
 
-  for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 ; do
+  for i in `seq {$startup_time}` ; do
     sleep 1
     if check_running ; then
       echo "$APP is now starting up"
@@ -313,11 +313,19 @@ has 'starman_port' => (
     required => 1
 );
 
+
+has 'startup_time' => (
+    is => 'ro',
+    isa => 'Str',
+    default => 30
+);
+
 around '_generate_file' => sub {
     my $orig = shift;
     my $self = shift;
     
     $_[2]->{starman_port} = $self->starman_port;
+    $_[2]->{startup_time} = $self->startup_time;
     $self->$orig(@_);
 };
 
@@ -332,7 +340,7 @@ Dist::Zilla::Plugin::Dpkg::PerlbrewStarman - Generate dpkg files for your perlbr
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 
@@ -392,6 +400,11 @@ This module provides defaults for the following attribute:
 =head2 starman_port
 
 The port to use for starman.
+
+=head2 startup_time
+
+The amount of time (in seconds) that the init script will wait on startup. Some
+applications may require more than the default amount of time (30 seconds).
 
 =head1 AUTHOR
 
