@@ -1,6 +1,6 @@
 package Dist::Zilla::Plugin::Dpkg::PerlbrewStarman;
 {
-  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.07';
+  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.08';
 }
 use Moose;
 
@@ -8,6 +8,12 @@ extends 'Dist::Zilla::Plugin::Dpkg';
 
 #ABSTRACT: Generate dpkg files for your perlbrew-backed, starman-based perl app
 
+
+has '+conffiles_template_default' => (
+    default => '/etc/default/{$package_name}
+/etc/init.d/{$package_name}
+'
+);
 
 has '+default_template_default' => (
     default => '# Defaults for {$package_name} initscript
@@ -80,7 +86,7 @@ check_compile() \{
 _start() \{
 
   export {$package_shell_name}_HOME=$APPDIR
-  /sbin/start-stop-daemon --background --start --pidfile $PIDFILE --chdir $APPDIR --exec $DAEMON -- \
+  /sbin/start-stop-daemon --start --pidfile $PIDFILE --chdir $APPDIR --exec $DAEMON -- \
     $DAEMON_ARGS \
     || return 2
 
@@ -178,8 +184,6 @@ has '+postinst_template_default' => (
 
 set -e
 
-. /usr/share/debconf/confmodule
-
 # summary of how this script can be called:
 #        * <postinst> `configure` <most-recently-configured-version>
 #        * <old-postinst> `abort-upgrade` <new version>
@@ -202,8 +206,8 @@ case "$1" in
             ln -s /srv/$PACKAGE/config /etc/$PACKAGE
         fi
 
-        # Symlink to the nginx config for the senvironment we`re in
-        if [ ! -e /etc/nginx/sites-available/$PACKAGE ]; then
+        # Symlink to the nginx config for the environment we`re in
+        if [ ! -h /etc/nginx/sites-available/$PACKAGE ]; then
             ln -s /srv/$PACKAGE/config/nginx/$PACKAGE.conf /etc/nginx/sites-available/$PACKAGE
         fi
 
@@ -225,6 +229,12 @@ case "$1" in
             mkdir /var/log/$PACKAGE
             chown -R $PACKAGE:adm /var/log/$PACKAGE
         fi
+        
+        if which invoke-rc.d >/dev/null 2>&1; then
+     		invoke-rc.d nginx restart
+     	else
+     		/etc/init.d/nginx restart
+     	fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
@@ -340,7 +350,7 @@ Dist::Zilla::Plugin::Dpkg::PerlbrewStarman - Generate dpkg files for your perlbr
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS
 
@@ -373,7 +383,7 @@ Starman.  It makes the following assumptions:
 
 =item Your app can be preloaded
 
-=item Your app only listens locally (nginx handles the rest)
+=item Your app only listens on localhost (nginx handles the rest)
 
 =item You want 5 workers
 
@@ -382,6 +392,8 @@ Starman.  It makes the following assumptions:
 This module provides defaults for the following attribute:
 
 =over 4
+
+=item conffiles_template_default
 
 =item default_template_default
 
