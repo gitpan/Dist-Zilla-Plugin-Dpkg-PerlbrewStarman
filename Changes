@@ -1,5 +1,9 @@
 Revision history for Dist-Zilla-Plugin-Dpkg-PerlbrewStarman
 
+0.09 Feb 17 2012
+  - Syntax check fix, which makes things restart properly.
+  - Override control file attribute to add a dependency on adduser
+
 0.08 Feb 10 2012
   - Remove sourcing of debconf, which is evidently code for "stop working"
   - Remove --background from start-stop-daemon

@@ -1,6 +1,6 @@
 package Dist::Zilla::Plugin::Dpkg::PerlbrewStarman;
 {
-  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.08';
+  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.09';
 }
 use Moose;
 
@@ -12,6 +12,21 @@ extends 'Dist::Zilla::Plugin::Dpkg';
 has '+conffiles_template_default' => (
     default => '/etc/default/{$package_name}
 /etc/init.d/{$package_name}
+'
+);
+
+has '+control_template_default' => (
+    default => 'Source: {$package_name}
+Section: {$package_section}
+Priority: {$package_priority}
+Maintainer: {$author}
+Build-Depends: {$package_depends}
+Standards-Version: 3.8.4
+
+Package: {$package_name}
+Architecture: {$architecture}
+Depends: adduser {$package_binary_depends}
+Description: {$package_description}
 '
 );
 
@@ -76,7 +91,7 @@ check_running() \{
 \}
 
 check_compile() \{
-  if ( cd $APPDIR ; perl -Ilib -M$APPLIB -ce1 ) ; then
+  if ( cd $APPLIB ; find -type f -name \'*.pm\' | xargs perl -c ) ; then
     return 1
   else
     return 0
@@ -350,7 +365,7 @@ Dist::Zilla::Plugin::Dpkg::PerlbrewStarman - Generate dpkg files for your perlbr
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 SYNOPSIS
 
@@ -394,6 +409,8 @@ This module provides defaults for the following attribute:
 =over 4
 
 =item conffiles_template_default
+
+=item control_template_default
 
 =item default_template_default
 
