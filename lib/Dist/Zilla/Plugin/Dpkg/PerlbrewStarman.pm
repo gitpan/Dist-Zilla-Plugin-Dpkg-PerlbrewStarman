@@ -1,10 +1,14 @@
 package Dist::Zilla::Plugin::Dpkg::PerlbrewStarman;
 {
-  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.09';
+  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.10';
 }
 use Moose;
 
+use Moose::Util::TypeConstraints;
+
 extends 'Dist::Zilla::Plugin::Dpkg';
+
+enum 'WebServer', [qw(apache nginx)];
 
 #ABSTRACT: Generate dpkg files for your perlbrew-backed, starman-based perl app
 
@@ -221,10 +225,7 @@ case "$1" in
             ln -s /srv/$PACKAGE/config /etc/$PACKAGE
         fi
 
-        # Symlink to the nginx config for the environment we`re in
-        if [ ! -h /etc/nginx/sites-available/$PACKAGE ]; then
-            ln -s /srv/$PACKAGE/config/nginx/$PACKAGE.conf /etc/nginx/sites-available/$PACKAGE
-        fi
+        {$webserver_config_link}
 
         # Create user if it doesn`t exist.
         if ! id $PACKAGE > /dev/null 2>&1 ; then
@@ -244,12 +245,8 @@ case "$1" in
             mkdir /var/log/$PACKAGE
             chown -R $PACKAGE:adm /var/log/$PACKAGE
         fi
-        
-        if which invoke-rc.d >/dev/null 2>&1; then
-     		invoke-rc.d nginx restart
-     	else
-     		/etc/init.d/nginx restart
-     	fi
+
+        {$webserver_restart}
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
@@ -283,13 +280,22 @@ case "$1" in
         rm /etc/$PACKAGE
 
         # Remove the nginx config
-        rm /etc/nginx/sites-available/$PACKAGE
+        if [ -h /etc/nginx/sites-available/$PACKAGE ]; then
+            rm /etc/nginx/sites-available/$PACKAGE
+        fi
+
+        # Remove the apache config
+        if [ -e /etc/apache2/sites-available/$PACKAGE ]; then
+            rm /etc/apache2/sites-enabled/$PACKAGE
+            rm /etc/apache2/sites-available/$PACKAGE
+        fi
 
         # Remove the user
         userdel $PACKAGE || true
 
         # Remove logs
         rm -rf /var/log/$PACKAGE
+        rm -rf /var/log/apache2/$PACKAGE
 
         # Remove the home directory
         rm -rf /srv/$PACKAGE
@@ -345,12 +351,48 @@ has 'startup_time' => (
     default => 30
 );
 
+
+has 'web_server' => (
+    is => 'ro',
+    isa => 'WebServer',
+    required => 1
+);
+
 around '_generate_file' => sub {
     my $orig = shift;
     my $self = shift;
     
     $_[2]->{starman_port} = $self->starman_port;
     $_[2]->{startup_time} = $self->startup_time;
+
+    if($self->web_server eq 'apache') {
+        $_[2]->{webserver_config_link} = '# Symlink to the apache config for the environment we`re in
+        if [ ! -e /etc/apache2/sites-available/$PACKAGE ]; then
+            ln /srv/$PACKAGE/config/apache/$PACKAGE.conf /etc/apache2/sites-available/$PACKAGE
+        fi
+';
+        $_[2]->{webserver_restart} = 'a2enmod proxy proxy_http rewrite
+        a2ensite $PACKAGE
+        mkdir -p /var/log/apache2/$PACKAGE
+        if which invoke-rc.d >/dev/null 2>&1; then
+            invoke-rc.d apache2 restart
+        else
+            /etc/init.d/apache2 restart
+        fi
+';
+    } else {
+        $_[2]->{webserver_config_link} = '# Symlink to the nginx config for the environment we`re in
+        if [ ! -h /etc/nginx/sites-available/$PACKAGE ]; then
+            ln -s /srv/$PACKAGE/config/nginx/$PACKAGE.conf /etc/nginx/sites-available/$PACKAGE
+        fi
+';
+        $_[2]->{webserver_restart} = 'if which invoke-rc.d >/dev/null 2>&1; then
+            invoke-rc.d nginx restart
+        else
+            /etc/init.d/nginx restart
+        fi
+';
+    }
     $self->$orig(@_);
 };
 
@@ -365,7 +407,7 @@ Dist::Zilla::Plugin::Dpkg::PerlbrewStarman - Generate dpkg files for your perlbr
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =head1 SYNOPSIS
 
@@ -384,7 +426,7 @@ Starman.  It makes the following assumptions:
 
 =item Runs under L<Starman>
 
-=item Starman is fronted by nginx
+=item Starman is fronted by nginx or apache
 
 =item It's installed at /srv/$packagename
 
@@ -394,11 +436,11 @@ Starman.  It makes the following assumptions:
 
 =item Config is in config/ and can be found by your app with nothing more than it's HOME variable set. (FOO_BAR_HOME)
 
-=item Nginx config is in config/nginx/$packagename.conf
+=item Nginx config is in config/nginx/$packagename.conf or Apache config is at config/apache/$packagename.conf
 
 =item Your app can be preloaded
 
-=item Your app only listens on localhost (nginx handles the rest)
+=item Your app only listens on localhost (nginx/apache handles the rest)
 
 =item You want 5 workers
 
@@ -434,6 +476,11 @@ The port to use for starman.
 
 The amount of time (in seconds) that the init script will wait on startup. Some
 applications may require more than the default amount of time (30 seconds).
+
+=head2 web_server
+
+Set the web server we'll be working with for this package.  Supported values
+are C<apache> and C<nginx>.
 
 =head1 AUTHOR
 
