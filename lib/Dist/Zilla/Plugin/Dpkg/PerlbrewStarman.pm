@@ -1,6 +1,6 @@
 package Dist::Zilla::Plugin::Dpkg::PerlbrewStarman;
 {
-  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.10';
+  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.11';
 }
 use Moose;
 
@@ -8,7 +8,7 @@ use Moose::Util::TypeConstraints;
 
 extends 'Dist::Zilla::Plugin::Dpkg';
 
-enum 'WebServer', [qw(apache nginx)];
+enum 'WebServer', [qw(apache nginx all)];
 
 #ABSTRACT: Generate dpkg files for your perlbrew-backed, starman-based perl app
 
@@ -365,13 +365,16 @@ around '_generate_file' => sub {
     $_[2]->{starman_port} = $self->starman_port;
     $_[2]->{startup_time} = $self->startup_time;
 
-    if($self->web_server eq 'apache') {
-        $_[2]->{webserver_config_link} = '# Symlink to the apache config for the environment we`re in
+    $_[2]->{webserver_config_link} = '';
+    $_[2]->{webserver_restart} = '';
+
+    if(($self->web_server eq 'apache') || ($self->web_server eq 'all')) {
+        $_[2]->{webserver_config_link} .= '# Symlink to the apache config for the environment we`re in
         if [ ! -e /etc/apache2/sites-available/$PACKAGE ]; then
             ln /srv/$PACKAGE/config/apache/$PACKAGE.conf /etc/apache2/sites-available/$PACKAGE
         fi
 ';
-        $_[2]->{webserver_restart} = 'a2enmod proxy proxy_http rewrite
+        $_[2]->{webserver_restart} .= 'a2enmod proxy proxy_http rewrite
         a2ensite $PACKAGE
         mkdir -p /var/log/apache2/$PACKAGE
         if which invoke-rc.d >/dev/null 2>&1; then
@@ -380,13 +383,14 @@ around '_generate_file' => sub {
             /etc/init.d/apache2 restart
         fi
 ';
-    } else {
-        $_[2]->{webserver_config_link} = '# Symlink to the nginx config for the environment we`re in
+    }
+    if(($self->web_server eq 'nginx') || ($self->web_server eq 'all')) {
+        $_[2]->{webserver_config_link} .= '# Symlink to the nginx config for the environment we`re in
         if [ ! -h /etc/nginx/sites-available/$PACKAGE ]; then
             ln -s /srv/$PACKAGE/config/nginx/$PACKAGE.conf /etc/nginx/sites-available/$PACKAGE
         fi
 ';
-        $_[2]->{webserver_restart} = 'if which invoke-rc.d >/dev/null 2>&1; then
+        $_[2]->{webserver_restart} .= 'if which invoke-rc.d >/dev/null 2>&1; then
             invoke-rc.d nginx restart
         else
             /etc/init.d/nginx restart
@@ -407,7 +411,7 @@ Dist::Zilla::Plugin::Dpkg::PerlbrewStarman - Generate dpkg files for your perlbr
 
 =head1 VERSION
 
-version 0.10
+version 0.11
 
 =head1 SYNOPSIS
 
