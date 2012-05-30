@@ -1,7 +1,7 @@
 
 
 This archive contains the distribution Dist-Zilla-Plugin-Dpkg-PerlbrewStarman,
-version 0.11:
+version 0.12:
 
   Generate dpkg files for your perlbrew-backed, starman-based perl app
 

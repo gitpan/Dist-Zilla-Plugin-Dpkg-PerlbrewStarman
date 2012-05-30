@@ -21,4 +21,4 @@ resources:
   bugtracker: https://github.com/gphat/dist-zilla-plugin-dpkg-perlbrewstarman/issues
   homepage: https://github.com/gphat/dist-zilla-plugin-dpkg-perlbrewstarman
   repository: https://github.com/gphat/dist-zilla-plugin-dpkg-perlbrewstarman.git
-version: 0.11
+version: 0.12

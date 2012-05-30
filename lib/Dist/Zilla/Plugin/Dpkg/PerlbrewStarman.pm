@@ -1,6 +1,6 @@
 package Dist::Zilla::Plugin::Dpkg::PerlbrewStarman;
 {
-  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.11';
+  $Dist::Zilla::Plugin::Dpkg::PerlbrewStarman::VERSION = '0.12';
 }
 use Moose;
 
@@ -229,7 +229,7 @@ case "$1" in
 
         # Create user if it doesn`t exist.
         if ! id $PACKAGE > /dev/null 2>&1 ; then
-            adduser --system --home /srv/$PACKAGE --no-create-home \
+            adduser --system {$uid} --home /srv/$PACKAGE --no-create-home \
                 --ingroup nogroup --disabled-password --shell /bin/bash \
                 $PACKAGE
         fi
@@ -352,6 +352,13 @@ has 'startup_time' => (
 );
 
 
+has 'uid' => (
+  is => 'ro',
+  isa => 'Int',
+  predicate => 'has_uid'
+);
+
+
 has 'web_server' => (
     is => 'ro',
     isa => 'WebServer',
@@ -362,6 +369,10 @@ around '_generate_file' => sub {
     my $orig = shift;
     my $self = shift;
     
+    if($self->has_uid) {
+      $_[2]->{uid} = '--uid '.$self->uid;
+    }
+    
     $_[2]->{starman_port} = $self->starman_port;
     $_[2]->{startup_time} = $self->startup_time;
 
@@ -370,9 +381,8 @@ around '_generate_file' => sub {
 
     if(($self->web_server eq 'apache') || ($self->web_server eq 'all')) {
         $_[2]->{webserver_config_link} .= '# Symlink to the apache config for the environment we`re in
-        if [ ! -e /etc/apache2/sites-available/$PACKAGE ]; then
-            ln /srv/$PACKAGE/config/apache/$PACKAGE.conf /etc/apache2/sites-available/$PACKAGE
-        fi
+        rm /etc/apache2/sites-available/$PACKAGE
+        ln /srv/$PACKAGE/config/apache/$PACKAGE.conf /etc/apache2/sites-available/$PACKAGE
 ';
         $_[2]->{webserver_restart} .= 'a2enmod proxy proxy_http rewrite
         a2ensite $PACKAGE
@@ -386,9 +396,8 @@ around '_generate_file' => sub {
     }
     if(($self->web_server eq 'nginx') || ($self->web_server eq 'all')) {
         $_[2]->{webserver_config_link} .= '# Symlink to the nginx config for the environment we`re in
-        if [ ! -h /etc/nginx/sites-available/$PACKAGE ]; then
-            ln -s /srv/$PACKAGE/config/nginx/$PACKAGE.conf /etc/nginx/sites-available/$PACKAGE
-        fi
+        rm /etc/nginx/sites-available/$PACKAGE
+        ln -s /srv/$PACKAGE/config/nginx/$PACKAGE.conf /etc/nginx/sites-available/$PACKAGE
 ';
         $_[2]->{webserver_restart} .= 'if which invoke-rc.d >/dev/null 2>&1; then
             invoke-rc.d nginx restart
@@ -411,7 +420,7 @@ Dist::Zilla::Plugin::Dpkg::PerlbrewStarman - Generate dpkg files for your perlbr
 
 =head1 VERSION
 
-version 0.11
+version 0.12
 
 =head1 SYNOPSIS
 
@@ -431,6 +440,8 @@ Starman.  It makes the following assumptions:
 =item Runs under L<Starman>
 
 =item Starman is fronted by nginx or apache
+
+=item It runs as a user called $packagename
 
 =item It's installed at /srv/$packagename
 
@@ -480,6 +491,11 @@ The port to use for starman.
 
 The amount of time (in seconds) that the init script will wait on startup. Some
 applications may require more than the default amount of time (30 seconds).
+
+=head2 uid
+
+The UID of the user we're adding for the package. This is helpful for syncing
+UIDs across multiple installations
 
 =head2 web_server
 
