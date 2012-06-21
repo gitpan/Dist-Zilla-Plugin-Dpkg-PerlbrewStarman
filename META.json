@@ -4,7 +4,7 @@
       "Cory G Watson <gphat@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300010, CPAN::Meta::Converter version 2.120630",
+   "generated_by" : "Dist::Zilla version 4.300006, CPAN::Meta::Converter version 2.113640",
    "license" : [
       "perl_5"
    ],
@@ -22,28 +22,28 @@
       "runtime" : {
          "requires" : {
             "Dist::Zilla::Plugin::Dpkg" : "0.03",
-            "Moose" : "0",
-            "Moose::Util::TypeConstraints" : "0"
+            "Moose" : 0,
+            "Moose::Util::TypeConstraints" : 0
          }
       },
       "test" : {
          "requires" : {
-            "Test::More" : "0"
+            "Test::More" : 0
          }
       }
    },
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://github.com/gphat/dist-zilla-plugin-dpkg-perlbrewstarman/issues"
+         "web" : "https://github.com/tripside/dist-zilla-plugin-dpkg-perlbrewstarman/issues"
       },
-      "homepage" : "https://github.com/gphat/dist-zilla-plugin-dpkg-perlbrewstarman",
+      "homepage" : "https://github.com/tripside/dist-zilla-plugin-dpkg-perlbrewstarman",
       "repository" : {
          "type" : "git",
-         "url" : "https://github.com/gphat/dist-zilla-plugin-dpkg-perlbrewstarman.git",
-         "web" : "https://github.com/gphat/dist-zilla-plugin-dpkg-perlbrewstarman"
+         "url" : "https://github.com/tripside/dist-zilla-plugin-dpkg-perlbrewstarman.git",
+         "web" : "https://github.com/tripside/dist-zilla-plugin-dpkg-perlbrewstarman"
       }
    },
-   "version" : "0.12"
+   "version" : "0.13"
 }
 
