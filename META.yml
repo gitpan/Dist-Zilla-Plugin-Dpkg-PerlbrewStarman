@@ -21,4 +21,4 @@ resources:
   bugtracker: https://github.com/tripside/dist-zilla-plugin-dpkg-perlbrewstarman/issues
   homepage: https://github.com/tripside/dist-zilla-plugin-dpkg-perlbrewstarman
   repository: https://github.com/tripside/dist-zilla-plugin-dpkg-perlbrewstarman.git
-version: 0.13
+version: 0.14
