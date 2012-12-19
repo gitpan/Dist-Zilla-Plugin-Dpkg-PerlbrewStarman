@@ -4,7 +4,7 @@ Dist::Zilla::Plugin::Dpkg::PerlbrewStarman - Generate dpkg files for your perlbr
 
 # VERSION
 
-version 0.14
+version 0.15
 
 # SYNOPSIS
 
@@ -60,6 +60,10 @@ UIDs across multiple installations
 
 Set the web server we'll be working with for this package.  Supported values
 are `apache` and `nginx`.
+
+## apache\_modules
+
+Set any additional Apache modules that will need to be enabled.
 
 # AUTHOR
 
