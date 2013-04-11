@@ -22,11 +22,11 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "Dist::Zilla::Plugin::Dpkg::PerlbrewStarman",
   "PREREQ_PM" => {
-    "Dist::Zilla::Plugin::Dpkg" => "0.03",
+    "Dist::Zilla::Plugin::Dpkg" => "0.05",
     "Moose" => 0,
     "Moose::Util::TypeConstraints" => 0
   },
-  "VERSION" => "0.15",
+  "VERSION" => "0.16",
   "test" => {
     "TESTS" => "t/*.t"
   }

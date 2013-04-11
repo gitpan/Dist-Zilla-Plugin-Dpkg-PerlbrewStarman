@@ -14,11 +14,11 @@ meta-spec:
   version: 1.4
 name: Dist-Zilla-Plugin-Dpkg-PerlbrewStarman
 requires:
-  Dist::Zilla::Plugin::Dpkg: 0.03
+  Dist::Zilla::Plugin::Dpkg: 0.05
   Moose: 0
   Moose::Util::TypeConstraints: 0
 resources:
   bugtracker: https://github.com/tripside/dist-zilla-plugin-dpkg-perlbrewstarman/issues
   homepage: https://github.com/tripside/dist-zilla-plugin-dpkg-perlbrewstarman
   repository: https://github.com/tripside/dist-zilla-plugin-dpkg-perlbrewstarman.git
-version: 0.15
+version: 0.16
